@@ -3,41 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Destaques da Rádio</title>
+    <title>Destaques</title>
     
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
 
     <style>
+        /* 1 - FUNDO BRANCO */
         body { 
-            font-family: 'Segoe UI', sans-serif; 
-            background-color: #121212; 
+            font-family: 'Segoe UI', Arial, sans-serif; 
+            background-color: #ffffff; 
             margin: 0; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            min-height: 100vh; 
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
+        /* 2 - FAIXA AZUL MARINHO NO TOPO */
+        .header-faixa {
+            width: 100%;
+            background-color: #001f3f; /* Azul Marinho */
+            color: #ffffff; /* Escrita em Branco */
+            padding: 12px 0;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        /* 3 - AJUSTE DO CARROSSEL (Lado a lado, sem "quadro" fechado) */
         .swiper { 
-            width: 90%; 
-            max-width: 450px; 
-            background: #fff; 
-            border-radius: 20px; 
-            overflow: hidden;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+            width: 100%; 
+            padding: 20px 0 40px 0; /* Espaço para as bolinhas */
         }
 
         .swiper-slide {
+            width: 85%; /* Faz o próximo slide aparecer um pedacinho */
             display: flex;
             flex-direction: column;
-            height: auto;
+            background: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); /* Sombra suave */
+            border: 1px solid #eee;
         }
 
-        /* AJUSTE PARA NÃO CORTAR IMAGEM */
+        /* IMAGEM SEM CORTES */
         .media-container { 
             width: 100%; 
-            height: 400px; 
-            background: #000; 
+            height: 300px; 
+            background: #f9f9f9; 
             display: flex; 
             align-items: center; 
             justify-content: center; 
@@ -46,7 +63,7 @@
         .media-container img { 
             max-width: 100%; 
             max-height: 100%; 
-            object-fit: contain; /* Garante que a imagem apareça inteira */
+            object-fit: contain; 
         }
 
         .media-container iframe { 
@@ -56,26 +73,36 @@
         }
 
         .info { 
-            padding: 20px; 
-            text-align: center; 
-            background: #fff;
-            color: #333;
+            padding: 15px; 
+            text-align: left; 
         }
 
-        .info h3 { margin: 0; font-size: 1.3rem; color: #d32f2f; }
-        .info p { margin: 10px 0 0; color: #555; font-size: 1rem; }
+        .info h3 { 
+            margin: 0; 
+            font-size: 1.1rem; 
+            color: #001f3f; 
+        }
 
-        /* Estilo das bolinhas de navegação */
-        .swiper-pagination-bullet-active { background: #d32f2f !important; }
+        .info p { 
+            margin: 8px 0 0; 
+            color: #444; 
+            font-size: 0.95rem; 
+            line-height: 1.4;
+        }
+
+        /* Cor dos pontinhos de navegação */
+        .swiper-pagination-bullet-active { background: #001f3f !important; }
         
         .loading { padding: 50px; text-align: center; color: #888; }
     </style>
 </head>
 <body>
 
+    <div class="header-faixa">Destaques</div>
+
     <div class="swiper mySwiper">
         <div class="swiper-wrapper" id="container-radio">
-            <div class="loading">Buscando postagens...</div>
+            <div class="loading">Carregando novidades...</div>
         </div>
         <div class="swiper-pagination"></div>
     </div>
@@ -92,17 +119,17 @@
                 const dados = await response.json();
 
                 if (!dados || dados.length === 0) {
-                    container.innerHTML = '<div class="loading">Nenhuma postagem encontrada.</div>';
+                    container.innerHTML = '<div class="loading">Nenhuma postagem no momento.</div>';
                     return;
                 }
 
-                container.innerHTML = ''; // Limpa o carregando
+                container.innerHTML = '';
 
-                dados.forEach(item => {
+                // Invertemos a ordem para o mais recente aparecer primeiro
+                dados.reverse().forEach(item => {
                     const slide = document.createElement('div');
                     slide.className = 'swiper-slide';
 
-                    // Formata link de imagem para alta qualidade sem erro de carregamento
                     let linkMidia = item.link;
                     if (item.tipo === 'image') {
                         linkMidia = item.link.replace("uc?export=view&id=", "thumbnail?sz=w1000&id=");
@@ -110,7 +137,7 @@
 
                     const htmlMidia = item.tipo === 'video' 
                         ? `<iframe src="${item.link}" allow="autoplay"></iframe>` 
-                        : `<img src="${linkMidia}" alt="Postagem">`;
+                        : `<img src="${linkMidia}" alt="Destaque">`;
 
                     slide.innerHTML = `
                         <div class="media-container">${htmlMidia}</div>
@@ -122,19 +149,19 @@
                     container.appendChild(slide);
                 });
 
-                // INICIALIZA O SWIPER APÓS CARREGAR OS DADOS
+                // CONFIGURAÇÃO DO CARROSSEL ESTILO "NOTÍCIAS"
                 new Swiper(".mySwiper", {
-                    loop: false, // Sem loop para a pessoa saber quando termina
-                    grabCursor: true, // Mostra a mãozinha no PC
+                    slidesPerView: "auto",      // Permite ver um pedaço do próximo slide
+                    centeredSlides: true,       // Centraliza o post atual
+                    spaceBetween: 15,           // Espaço entre um post e outro
+                    grabCursor: true,
                     pagination: {
                         el: ".swiper-pagination",
                         clickable: true,
                     },
-                    // Removido o Autoplay para ser apenas manual
                 });
 
             } catch (error) {
-                console.error(error);
                 container.innerHTML = '<div class="loading">Erro ao carregar o feed.</div>';
             }
         }
