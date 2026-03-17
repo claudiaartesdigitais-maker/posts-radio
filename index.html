@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Destaques</title>
+    <title>Destaques da Rádio</title>
     
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
 
     <style>
-        /* 1 - FUNDO BRANCO */
+        /* 1 - CONFIGURAÇÃO GERAL E FUNDO BRANCO */
         body { 
             font-family: 'Segoe UI', Arial, sans-serif; 
             background-color: #ffffff; 
@@ -27,33 +27,34 @@
             padding: 12px 0;
             text-align: center;
             font-weight: bold;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             text-transform: uppercase;
             letter-spacing: 1px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
 
-        /* 3 - AJUSTE DO CARROSSEL (Lado a lado, sem "quadro" fechado) */
+        /* 3 - AJUSTE DO CARROSSEL (Lado a lado, estilo notícias) */
         .swiper { 
             width: 100%; 
-            padding: 20px 0 40px 0; /* Espaço para as bolinhas */
+            padding: 20px 0 50px 0; 
         }
 
         .swiper-slide {
-            width: 85%; /* Faz o próximo slide aparecer um pedacinho */
+            width: 85%; /* Faz o post vizinho aparecer um pedacinho */
             display: flex;
             flex-direction: column;
             background: #fff;
             border-radius: 12px;
             overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1); /* Sombra suave */
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
             border: 1px solid #eee;
+            height: auto;
         }
 
-        /* IMAGEM SEM CORTES */
+        /* ÁREA DA IMAGEM/VÍDEO SEM CORTES */
         .media-container { 
             width: 100%; 
-            height: 300px; 
+            height: 280px; 
             background: #f9f9f9; 
             display: flex; 
             align-items: center; 
@@ -72,28 +73,38 @@
             border: none; 
         }
 
+        /* ÁREA DE TEXTO AJUSTADA PARA TEXTOS LONGOS */
         .info { 
-            padding: 15px; 
-            text-align: left; 
+            padding: 12px; 
+            text-align: left;
+            max-height: 120px; /* Limita a altura se o texto for muito grande */
+            overflow-y: auto;  /* Cria rolagem interna para o texto se necessário */
+            background: #fff;
         }
 
         .info h3 { 
             margin: 0; 
-            font-size: 1.1rem; 
+            font-size: 0.95rem; /* Fonte menor para o nome */
             color: #001f3f; 
+            font-weight: bold;
+            text-transform: uppercase;
         }
 
         .info p { 
-            margin: 8px 0 0; 
+            margin: 5px 0 0; 
             color: #444; 
-            font-size: 0.95rem; 
+            font-size: 0.85rem; /* Fonte menor para a mensagem */
             line-height: 1.4;
         }
 
-        /* Cor dos pontinhos de navegação */
+        /* Barra de rolagem discreta para textos longos */
+        .info::-webkit-scrollbar { width: 4px; }
+        .info::-webkit-scrollbar-thumb { background: #001f3f; border-radius: 10px; }
+
+        /* Cor das bolinhas de navegação */
         .swiper-pagination-bullet-active { background: #001f3f !important; }
         
-        .loading { padding: 50px; text-align: center; color: #888; }
+        .loading { padding: 50px; text-align: center; color: #888; font-style: italic; }
     </style>
 </head>
 <body>
@@ -102,7 +113,7 @@
 
     <div class="swiper mySwiper">
         <div class="swiper-wrapper" id="container-radio">
-            <div class="loading">Carregando novidades...</div>
+            <div class="loading">Buscando atualizações...</div>
         </div>
         <div class="swiper-pagination"></div>
     </div>
@@ -110,6 +121,7 @@
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 
     <script>
+        // SEU LINK DO GOOGLE APPS SCRIPT
         const urlAppScript = "https://script.google.com/macros/s/AKfycbzu8XmLR4bD43EyAq3IiMlQCyy2xpUKj1vlP7Yv_oxcFzJ4Oq_7b_y2l-R0bgkOgRFj3g/exec";
 
         async function carregarPosts() {
@@ -123,13 +135,14 @@
                     return;
                 }
 
-                container.innerHTML = '';
+                container.innerHTML = ''; // Limpa o carregamento
 
-                // Invertemos a ordem para o mais recente aparecer primeiro
+                // .reverse() faz o post mais novo (última linha da planilha) aparecer primeiro
                 dados.reverse().forEach(item => {
                     const slide = document.createElement('div');
                     slide.className = 'swiper-slide';
 
+                    // Tratamento do link da imagem para carregar em qualquer navegador
                     let linkMidia = item.link;
                     if (item.tipo === 'image') {
                         linkMidia = item.link.replace("uc?export=view&id=", "thumbnail?sz=w1000&id=");
@@ -149,12 +162,12 @@
                     container.appendChild(slide);
                 });
 
-                // CONFIGURAÇÃO DO CARROSSEL ESTILO "NOTÍCIAS"
+                // INICIALIZAÇÃO DO CARROSSEL
                 new Swiper(".mySwiper", {
-                    slidesPerView: "auto",      // Permite ver um pedaço do próximo slide
-                    centeredSlides: true,       // Centraliza o post atual
-                    spaceBetween: 15,           // Espaço entre um post e outro
-                    grabCursor: true,
+                    slidesPerView: "auto",      // Permite ver o slide vizinho
+                    centeredSlides: true,       // Mantém o slide atual no meio
+                    spaceBetween: 15,           // Espaço entre os posts
+                    grabCursor: true,           // Mãozinha no mouse
                     pagination: {
                         el: ".swiper-pagination",
                         clickable: true,
@@ -162,7 +175,8 @@
                 });
 
             } catch (error) {
-                container.innerHTML = '<div class="loading">Erro ao carregar o feed.</div>';
+                console.error("Erro:", error);
+                container.innerHTML = '<div class="loading">Erro ao carregar o feed. Verifique a conexão.</div>';
             }
         }
 
