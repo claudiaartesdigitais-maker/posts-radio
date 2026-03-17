@@ -4,107 +4,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Destaques da Rádio</title>
-    
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
-
     <style>
-        /* 1 - CONFIGURAÇÃO GERAL E FUNDO BRANCO */
-        body { 
-            font-family: 'Segoe UI', Arial, sans-serif; 
-            background-color: #ffffff; 
-            margin: 0; 
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        /* 2 - FAIXA AZUL MARINHO NO TOPO */
-        .header-faixa {
-            width: 100%;
-            background-color: #001f3f; /* Azul Marinho */
-            color: #ffffff; /* Escrita em Branco */
-            padding: 12px 0;
-            text-align: center;
-            font-weight: bold;
-            font-size: 1.1rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-
-        /* 3 - AJUSTE DO CARROSSEL (Lado a lado, estilo notícias) */
-        .swiper { 
-            width: 100%; 
-            padding: 20px 0 50px 0; 
-        }
-
-        .swiper-slide {
-            width: 85%; /* Faz o post vizinho aparecer um pedacinho */
-            display: flex;
-            flex-direction: column;
-            background: #fff;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
-            border: 1px solid #eee;
-            height: auto;
-        }
-
-        /* ÁREA DA IMAGEM/VÍDEO SEM CORTES */
-        .media-container { 
-            width: 100%; 
-            height: 280px; 
-            background: #f9f9f9; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-        }
-
-        .media-container img { 
-            max-width: 100%; 
-            max-height: 100%; 
-            object-fit: contain; 
-        }
-
-        .media-container iframe { 
-            width: 100%; 
-            height: 100%; 
-            border: none; 
-        }
-
-        /* ÁREA DE TEXTO AJUSTADA PARA TEXTOS LONGOS */
-        .info { 
-            padding: 12px; 
-            text-align: left;
-            max-height: 120px; /* Limita a altura se o texto for muito grande */
-            overflow-y: auto;  /* Cria rolagem interna para o texto se necessário */
-            background: #fff;
-        }
-
-        .info h3 { 
-            margin: 0; 
-            font-size: 0.95rem; /* Fonte menor para o nome */
-            color: #001f3f; 
-            font-weight: bold;
-            text-transform: uppercase;
-        }
-
-        .info p { 
-            margin: 5px 0 0; 
-            color: #444; 
-            font-size: 0.85rem; /* Fonte menor para a mensagem */
-            line-height: 1.4;
-        }
-
-        /* Barra de rolagem discreta para textos longos */
-        .info::-webkit-scrollbar { width: 4px; }
-        .info::-webkit-scrollbar-thumb { background: #001f3f; border-radius: 10px; }
-
-        /* Cor das bolinhas de navegação */
-        .swiper-pagination-bullet-active { background: #001f3f !important; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #ffffff; margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; }
+        .header-faixa { width: 100%; background-color: #001f3f; color: #ffffff; padding: 12px 0; text-align: center; font-weight: bold; font-size: 1.1rem; text-transform: uppercase; }
+        .swiper { width: 100%; padding: 20px 0 50px 0; }
+        .swiper-slide { width: 85%; display: flex; flex-direction: column; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.1); border: 1px solid #eee; }
+        .media-container { width: 100%; height: 280px; background: #f9f9f9; display: flex; align-items: center; justify-content: center; position: relative; }
+        .media-container img { max-width: 100%; max-height: 100%; object-fit: contain; }
+        .media-container iframe { width: 100%; height: 100%; border: none; }
         
-        .loading { padding: 50px; text-align: center; color: #888; font-style: italic; }
+        .info { padding: 12px; text-align: left; background: #fff; position: relative; }
+        .info h3 { margin: 0; font-size: 0.95rem; color: #001f3f; font-weight: bold; }
+        .info p { margin: 5px 0 0; color: #444; font-size: 0.85rem; line-height: 1.4; padding-right: 40px; }
+
+        /* BOTÃO CURTIR */
+        .like-container { position: absolute; right: 10px; bottom: 15px; display: flex; flex-direction: column; align-items: center; cursor: pointer; }
+        .like-btn { font-size: 1.5rem; color: #ccc; transition: transform 0.2s; }
+        .like-btn.active { color: #d32f2f; }
+        .like-count { font-size: 0.75rem; color: #666; font-weight: bold; }
+        
+        .swiper-pagination-bullet-active { background: #001f3f !important; }
+        .loading { padding: 50px; text-align: center; color: #888; }
     </style>
 </head>
 <body>
@@ -121,65 +42,61 @@
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 
     <script>
-        // SEU LINK DO GOOGLE APPS SCRIPT
-        const urlAppScript = "https://script.google.com/macros/s/AKfycbzu8XmLR4bD43EyAq3IiMlQCyy2xpUKj1vlP7Yv_oxcFzJ4Oq_7b_y2l-R0bgkOgRFj3g/exec";
+        const urlAppScript = "https://script.google.com/macros/s/AKfycbxFsRaKd1EheqyQHzGSa13aZ9Ea3uOQubLy0e5rWnBSWUrV5r3OPTJr6gEPbH7F1tRpSA/exec";
+
+        async function curtir(linha, btnElement) {
+            const countElement = btnElement.nextElementSibling;
+            btnElement.style.transform = "scale(1.3)";
+            setTimeout(() => btnElement.style.transform = "scale(1)", 200);
+            
+            btnElement.classList.add('active');
+            btnElement.innerHTML = "❤️";
+
+            try {
+                const response = await fetch(urlAppScript, {
+                    method: 'POST',
+                    body: JSON.stringify({ linha: linha })
+                });
+                const res = await response.json();
+                countElement.innerText = res.novoTotal;
+            } catch (e) { console.error("Erro ao curtir"); }
+        }
 
         async function carregarPosts() {
             const container = document.getElementById('container-radio');
             try {
                 const response = await fetch(urlAppScript);
                 const dados = await response.json();
+                container.innerHTML = '';
 
-                if (!dados || dados.length === 0) {
-                    container.innerHTML = '<div class="loading">Nenhuma postagem no momento.</div>';
-                    return;
-                }
-
-                container.innerHTML = ''; // Limpa o carregamento
-
-                // .reverse() faz o post mais novo (última linha da planilha) aparecer primeiro
                 dados.reverse().forEach(item => {
                     const slide = document.createElement('div');
                     slide.className = 'swiper-slide';
 
-                    // Tratamento do link da imagem para carregar em qualquer navegador
                     let linkMidia = item.link;
                     if (item.tipo === 'image') {
                         linkMidia = item.link.replace("uc?export=view&id=", "thumbnail?sz=w1000&id=");
                     }
 
-                    const htmlMidia = item.tipo === 'video' 
-                        ? `<iframe src="${item.link}" allow="autoplay"></iframe>` 
-                        : `<img src="${linkMidia}" alt="Destaque">`;
-
                     slide.innerHTML = `
-                        <div class="media-container">${htmlMidia}</div>
+                        <div class="media-container">
+                            ${item.tipo === 'video' ? `<iframe src="${item.link}"></iframe>` : `<img src="${linkMidia}">`}
+                        </div>
                         <div class="info">
                             <h3>${item.apresentador}</h3>
                             <p>${item.mensagem}</p>
+                            <div class="like-container" onclick="curtir(${item.id}, this.querySelector('.like-btn'))">
+                                <span class="like-btn">🤍</span>
+                                <span class="like-count">${item.curtidas}</span>
+                            </div>
                         </div>
                     `;
                     container.appendChild(slide);
                 });
 
-                // INICIALIZAÇÃO DO CARROSSEL
-                new Swiper(".mySwiper", {
-                    slidesPerView: "auto",      // Permite ver o slide vizinho
-                    centeredSlides: true,       // Mantém o slide atual no meio
-                    spaceBetween: 15,           // Espaço entre os posts
-                    grabCursor: true,           // Mãozinha no mouse
-                    pagination: {
-                        el: ".swiper-pagination",
-                        clickable: true,
-                    },
-                });
-
-            } catch (error) {
-                console.error("Erro:", error);
-                container.innerHTML = '<div class="loading">Erro ao carregar o feed. Verifique a conexão.</div>';
-            }
+                new Swiper(".mySwiper", { slidesPerView: "auto", centeredSlides: true, spaceBetween: 15, pagination: { el: ".swiper-pagination", clickable: true } });
+            } catch (error) { container.innerHTML = '<div class="loading">Erro ao carregar.</div>'; }
         }
-
         carregarPosts();
     </script>
 </body>
