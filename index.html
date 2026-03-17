@@ -3,36 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel da Rádio</title>
+    <title>Destaques da Rádio</title>
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
 
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; margin: 0; padding: 20px; }
-        h2 { text-align: center; color: #1a1a1a; }
+        body { 
+            font-family: 'Segoe UI', Arial, sans-serif; 
+            background-color: #f0f2f5; 
+            margin: 0; 
+            padding: 20px; 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
 
-        /* Estilização do Carrossel */
-        .swiper { width: 100%; max-width: 600px; height: auto; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); background: #fff; padding-bottom: 50px; }
-        .swiper-slide { display: flex; flex-direction: column; align-items: center; justify-content: center; background: #fff; }
-        
-        .card-conteudo { width: 100%; text-align: center; }
-        .card-conteudo img, .card-conteudo iframe { 
+        h2 { color: #1a1a1a; margin-bottom: 30px; }
+
+        /* Contentor do Carrossel */
+        .swiper { 
             width: 100%; 
-            height: 350px; 
-            object-fit: cover; 
-            border-radius: 20px 20px 0 0; 
+            max-width: 500px; 
+            border-radius: 20px; 
+            background: #fff;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .swiper-slide {
+            display: flex;
+            flex-direction: column;
+            background: #fff;
+        }
+
+        .media-container {
+            width: 100%;
+            height: 350px;
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .media-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .media-container iframe {
+            width: 100%;
+            height: 100%;
             border: none;
         }
-        
-        .info { padding: 20px; }
-        .info h3 { margin: 0; color: #333; font-size: 1.5rem; }
-        .info p { color: #666; margin: 10px 0 0; font-size: 1.1rem; }
 
-        /* Cores das setas e pontos */
+        .info {
+            padding: 20px;
+            text-align: center;
+        }
+
+        .info h3 { margin: 0; color: #333; font-size: 1.4rem; }
+        .info p { color: #666; margin: 10px 0 0; line-height: 1.4; }
+
+        /* Paginação e Setas */
         .swiper-button-next, .swiper-button-prev { color: #ff0000; }
         .swiper-pagination-bullet-active { background: #ff0000; }
-        
-        .loading { text-align: center; padding: 50px; font-style: italic; color: #888; }
+
+        .loading-msg {
+            padding: 100px 20px;
+            text-align: center;
+            color: #888;
+            font-style: italic;
+        }
     </style>
 </head>
 <body>
@@ -41,7 +83,7 @@
 
     <div class="swiper mySwiper">
         <div class="swiper-wrapper" id="container-radio">
-            <div class="loading">Buscando atualizações da rádio...</div>
+            <div class="loading-msg">A carregar novidades da rádio...</div>
         </div>
         <div class="swiper-button-next"></div>
         <div class="swiper-button-prev"></div>
@@ -51,41 +93,58 @@
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 
     <script>
-        // SEU LINK DO GOOGLE SCRIPT
+        // Link da sua API no Google Script
         const urlAppScript = "https://script.google.com/macros/s/AKfycbzkCXKOZ3OsuWEqL5HgwuGOsebIIGdAhxULO1e2mjPuDbfi03WFP4YKMtHTBsmLS5OHBg/exec";
 
-        async function carregarRadio() {
+        async function carregarDados() {
+            const container = document.getElementById('container-radio');
+            
             try {
                 const response = await fetch(urlAppScript);
                 const dados = await response.json();
-                const container = document.getElementById('container-radio');
 
-                if (dados.length === 0) {
-                    container.innerHTML = '<div class="loading">Nenhuma postagem encontrada.</div>';
+                if (!dados || dados.length === 0) {
+                    container.innerHTML = '<div class="loading-msg">Nenhuma publicação encontrada no momento.</div>';
                     return;
                 }
 
-                container.innerHTML = ""; // Limpa o carregando
+                container.innerHTML = ""; // Limpa a mensagem de carregamento
 
                 dados.forEach(item => {
                     const slide = document.createElement('div');
                     slide.className = 'swiper-slide';
-                    
-                    // Verifica se é vídeo ou imagem
+
                     const midia = item.tipo === "video" 
                         ? `<iframe src="${item.link}" allow="autoplay"></iframe>`
-                        : `<img src="${item.link}" alt="${item.apresentador}">`;
+                        : `<img src="${item.link}" alt="Imagem do apresentador">`;
 
                     slide.innerHTML = `
-                        <div class="card-conteudo">
-                            ${midia}
-                            <div class="info">
-                                <h3>${item.apresentador}</h3>
-                                <p>${item.mensagem}</p>
-                            </div>
+                        <div class="media-container">${midia}</div>
+                        <div class="info">
+                            <h3>${item.apresentador}</h3>
+                            <p>${item.mensagem}</p>
                         </div>
                     `;
                     container.appendChild(slide);
                 });
 
-                // Inicia o Swiper
+                // Inicializa o Swiper após os dados entrarem no HTML
+                new Swiper(".mySwiper", {
+                    loop: true,
+                    autoHeight: true,
+                    pagination: { el: ".swiper-pagination", clickable: true },
+                    navigation: { nextEl: ".swiper-button-next", prevEl: ".swiper-button-prev" },
+                    autoplay: { delay: 5000 },
+                });
+
+            } catch (erro) {
+                console.error("Erro na carga:", erro);
+                container.innerHTML = '<div class="loading-msg">Erro ao ligar à rádio. Tente atualizar a página.</div>';
+            }
+        }
+
+        // Inicia o processo
+        carregarDados();
+    </script>
+</body>
+</html>
