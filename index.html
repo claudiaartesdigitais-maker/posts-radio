@@ -3,53 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Destaques da Rádio</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
     <style>
-        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #ffffff; margin: 0; padding: 0; }
+        /* ESTILOS GERAIS */
+        body, html { margin: 0; padding: 0; background: #ffffff; font-family: 'Segoe UI', Roboto, sans-serif; overflow-x: hidden; }
         
-        /* FAIXAS MAIS LARGAS (15px) */
+        /* TÍTULOS PADRÃO */
+        .mural-titulo { padding: 15px 18px 8px 18px; font-size: 22px; font-weight: 900; color: #001a33; text-transform: uppercase; display: flex; align-items: center; gap: 10px; }
+        .mural-titulo::before { content: ''; width: 5px; height: 22px; background: #d32f2f; border-radius: 2px; }
+
+        /* --- ESTILOS NOTÍCIAS 24H (SEU CÓDIGO ORIGINAL) --- */
+        .feed-container { display: flex; flex-direction: row; overflow-x: auto; padding: 10px 15px 35px 15px; gap: 18px; -webkit-overflow-scrolling: touch; }
+        .feed-container::-webkit-scrollbar { display: none; }
+        .card { flex: 0 0 300px; background: white; border-radius: 20px; box-shadow: 0 8px 20px rgba(0,0,0,0.12); text-decoration: none; color: #333; height: 400px; display: flex; flex-direction: column; border: 1px solid #eee; overflow: hidden; }
+        .thumb-container { width: 100%; height: 200px; background: #000; overflow: hidden; }
+        .thumb { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .corpo { padding: 15px; flex: 1; display: flex; flex-direction: column; justify-content: flex-start; }
+        .tipo { font-size: 12px; color: #d32f2f; font-weight: 900; text-transform: uppercase; margin-bottom: 8px; }
+        .titulo-noticia { font-size: 18px; font-weight: bold; line-height: 1.4; color: #001a33; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+
+        /* --- ESTILOS DESTAQUES (NOVO VISUAL) --- */
         .barra-azul { width: 100%; height: 15px; background-color: #001f3f; }
-        .barra-azul-rodape { width: 100%; height: 15px; background-color: #001f3f; margin-top: 15px; }
-
-        .header-faixa { width: 100%; padding: 20px 18px 15px 18px; font-size: 24px; font-weight: 900; color: #001a33; text-transform: uppercase; display: flex; align-items: center; gap: 10px; box-sizing: border-box; }
-        .header-faixa::before { content: ''; width: 6px; height: 24px; background: #d32f2f; border-radius: 2px; }
-
-        .swiper { width: 100%; padding-bottom: 5px; }
+        .swiper { width: 100%; padding-bottom: 10px; background: #fff; }
         .swiper-slide { width: 88%; max-width: 420px; display: flex; flex-direction: column; background: #fff; }
+        .media-destaque { width: 100%; position: relative; background: #fff; display: flex; align-items: center; justify-content: center; overflow: hidden; border-radius: 15px; }
+        .media-destaque img, .media-destaque video { width: 100%; height: auto; max-height: 70vh; object-fit: contain; display: block; border-radius: 15px; }
         
-        .media-container { width: 100%; position: relative; background: #ffffff; display: flex; align-items: center; justify-content: center; overflow: hidden; border-radius: 15px; }
-        .media-container img, .media-container video { width: 100%; height: auto; max-height: 70vh; object-fit: contain; display: block; border-radius: 15px; }
+        /* Botão Play para Vídeos em Destaque */
+        .btn-play-video { position: absolute; width: 70px; height: 70px; background: rgba(211, 47, 47, 0.9); border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 5; pointer-events: none; box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
+        .btn-play-video::after { content: ''; border-top: 15px solid transparent; border-bottom: 15px solid transparent; border-left: 25px solid white; margin-left: 6px; }
 
-        /* Botão de Play */
-        .btn-play-video {
-            position: absolute;
-            width: 70px;
-            height: 70px;
-            background: rgba(211, 47, 47, 0.9);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 5;
-            pointer-events: none;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
-        }
-        .btn-play-video::after {
-            content: '';
-            width: 0; height: 0;
-            border-top: 15px solid transparent;
-            border-bottom: 15px solid transparent;
-            border-left: 25px solid white;
-            margin-left: 6px;
-        }
+        .info-destaque { padding: 18px 5px; position: relative; }
+        .titulo-c { font-size: 20px; font-weight: 800; color: #001a33; text-transform: uppercase; display: block; margin-bottom: 6px; }
+        .apresentador-destaque { margin: 0; font-size: 14px; font-weight: 700; color: #d32f2f; text-transform: uppercase; }
+        .msg-destaque { margin: 12px 0 0; font-size: 17px; font-weight: 500; color: #333; padding-right: 60px; line-height: 1.5; }
 
-        .info { padding: 18px 5px; position: relative; }
-        .titulo-c { font-size: 20px; font-weight: 800; color: #001a33; line-height: 1.2; margin-bottom: 6px; display: block; text-transform: uppercase; }
-        .info h3 { margin: 0; font-size: 14px; font-weight: 700; color: #d32f2f; text-transform: uppercase; letter-spacing: 0.5px; }
-        .info p { margin: 12px 0 0; font-size: 17px; font-weight: 500; color: #333; padding-right: 60px; line-height: 1.5; }
-
-        /* Like */
         .like-container { position: absolute; right: 5px; top: 18px; display: flex; flex-direction: column; align-items: center; cursor: pointer; }
         .like-btn { font-size: 2rem; color: #ccc; }
         .like-btn.active { color: #d32f2f; }
@@ -58,52 +46,75 @@
 </head>
 <body>
 
+    <div class="mural-titulo">Notícias 24 horas</div>
+    <div id="lista" class="feed-container"></div>
+
     <div class="barra-azul"></div>
-    <div class="header-faixa">Destaques da Semana</div>
-
+    <div class="mural-titulo">Destaques da Semana</div>
+    
     <div class="swiper mySwiper">
-        <div class="swiper-wrapper" id="container-radio"></div>
+        <div class="swiper-wrapper" id="container-destaques"></div>
     </div>
-
-    <div class="barra-azul-rodape"></div>
+    
+    <div class="barra-azul"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 
     <script>
-        const urlAppScript = "https://script.google.com/macros/s/AKfycbxNzDvifH0pv74i5E7BUS-scdfujI7mRLymYcOmCJDN3JH4AeGAThfHZoGDt2xS228zWw/exec?aba=Respostas ao formulário 1";
-
-        async function curtir(linha, btnElement) {
-            const countElement = btnElement.nextElementSibling;
-            if(btnElement.classList.contains('active')) return;
-            btnElement.classList.add('active');
-            btnElement.innerHTML = "❤️";
+        // URLs das planilhas
+        const urlNoticias = "https://script.google.com/macros/s/AKfycbzvxO4A4LuJPluxrGANlxSWTWHN3ZxU2UgcveW-3wZaIAUS_xLYrCd1LcGbpjMoc6Wa/exec";
+        const urlDestaques = "https://script.google.com/macros/s/AKfycbNzDvifH0pv74i5E7BUS-scdfujI7mRLymYcOmCJDN3JH4AeGAThfHZoGDt2xS228zWw/exec?aba=Respostas ao formulário 1";
+        
+        // --- FUNÇÃO NOTÍCIAS 24H (SEU CÓDIGO ORIGINAL INTEGRADO) ---
+        async function carregarNoticias() {
+            const imgMuralPadrao = "https://raw.githubusercontent.com/claudiaartesdigitais-maker/adm-radio/main/mural.png?t=" + new Date().getTime();
             try {
-                await fetch(urlAppScript, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ linha: linha }) });
-                countElement.innerText = parseInt(countElement.innerText) + 1;
-            } catch (e) {}
-        }
-
-        function iniciarVideo(el) {
-            const video = el.querySelector('video');
-            const playBtn = el.querySelector('.btn-play-video');
-            if (video.paused) {
-                video.play();
-                if(playBtn) playBtn.style.display = 'none';
-            } else {
-                video.pause();
-                if(playBtn) playBtn.style.display = 'flex';
-            }
-        }
-
-        async function carregarPosts() {
-            const container = document.getElementById('container-radio');
-            try {
-                const response = await fetch(urlAppScript);
-                const dados = await response.json();
+                const res = await fetch(urlNoticias);
+                const dados = await res.json(); 
+                const container = document.getElementById('lista');
                 const agora = new Date().getTime();
+
+                const filtradas = dados.filter(item => {
+                    if(!item.data) return false;
+                    return (agora - new Date(item.data).getTime()) < 86400000;
+                });
                 
-                // 7 dias em milissegundos
-                const limite = 7 * 24 * 60 * 60 * 1000;
+                if (filtradas.length === 0) {
+                    container.innerHTML = "<p style='padding:50px; color:#999; text-align:center; width:100%; font-size:16px;'>Sem novidades nas últimas 24h.</p>";
+                } else {
+                    container.innerHTML = filtradas.reverse().map(item => {
+                        const linkOriginal = (item.link || "").trim();
+                        const linkLower = linkOriginal.toLowerCase();
+                        const ytMatch = linkOriginal.match(/(?:youtu\.be\/|v\/|u\/\w\/|embed\/|shorts\/|live\/|watch\?v=|\&v=)([^#\&\?]*).*/);
+                        const ytId = ytMatch ? ytMatch[1] : null;
+                        
+                        let imgFinal = imgMuralPadrao;
+                        if (!(linkLower.includes("facebook") || linkLower.includes("fb.watch") || linkLower.includes("fb.com") || linkLower.includes("instagram") || linkLower.includes("tiktok") || linkLower.includes("kwai"))) {
+                            if (ytId) imgFinal = `https://img.youtube.com/vi/${ytId}/hqdefault.jpg`;
+                            else if (item.capa && item.capa.trim().length > 15) imgFinal = item.capa;
+                        }
+                        
+                        return `
+                            <a href="${linkOriginal}" target="_blank" class="card">
+                                <div class="thumb-container"><img src="${imgFinal}" class="thumb" onerror="this.src='${imgMuralPadrao}'"></div>
+                                <div class="corpo">
+                                    <span class="tipo">⌚ ${(item.tipo || 'Destaque')}</span>
+                                    <div class="titulo-noticia">${item.titulo}</div>
+                                </div>
+                            </a>`;
+                    }).join('');
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        // --- FUNÇÃO DESTAQUES (NOVO CÓDIGO COM ARRASTAR E VÍDEO) ---
+        async function carregarDestaques() {
+            const container = document.getElementById('container-destaques');
+            try {
+                const res = await fetch(urlDestaques);
+                const dados = await res.json();
+                const agora = new Date().getTime();
+                const limite = 7 * 24 * 60 * 60 * 1000; // 7 dias
 
                 container.innerHTML = dados.reverse().filter(item => {
                     if(!item.data) return false;
@@ -112,27 +123,20 @@
                     const arquivo = (item.arquivo || item.link || "").trim();
                     const eVideo = /\.(mp4|mov|webm|ogg)$/i.test(arquivo);
                     
-                    let midiaHtml = "";
-                    if (eVideo) {
-                        midiaHtml = `
-                            <div class="media-container" onclick="iniciarVideo(this)">
-                                <div class="btn-play-video"></div>
-                                <video src="${arquivo}" playsinline loop></video>
-                            </div>`;
-                    } else {
-                        const imgUrl = arquivo.includes('drive.google.com') ? 
-                            `https://drive.google.com/thumbnail?id=${arquivo.match(/[-\w]{25,}/)[0]}&sz=w1000` : arquivo;
-                        midiaHtml = `<div class="media-container"><img src="${imgUrl}"></div>`;
-                    }
+                    let midiaHtml = eVideo ? 
+                        `<div class="media-destaque" onclick="this.querySelector('video').play(); this.querySelector('.btn-play-video').style.display='none'">
+                            <div class="btn-play-video"></div><video src="${arquivo}" playsinline loop></video>
+                         </div>` : 
+                        `<div class="media-destaque"><img src="${arquivo.includes('drive.google.com') ? `https://drive.google.com/thumbnail?id=${arquivo.match(/[-\w]{25,}/)[0]}&sz=w1000` : arquivo}"></div>`;
 
                     return `
                         <div class="swiper-slide">
                             ${midiaHtml}
-                            <div class="info">
+                            <div class="info-destaque">
                                 <span class="titulo-c">${item.titulo || ""}</span>
-                                <h3>${item.apresentador || ""}</h3>
-                                <p>${item.mensagem || ""}</p>
-                                <div class="like-container" onclick="curtir(${item.id || item.linha}, this.querySelector('.like-btn'))">
+                                <h3 class="apresentador-destaque">${item.apresentador || ""}</h3>
+                                <p class="msg-destaque">${item.mensagem || ""}</p>
+                                <div class="like-container" onclick="curtirDestaque(${item.id || item.linha}, this.querySelector('.like-btn'))">
                                     <span class="like-btn">🤍</span>
                                     <span class="like-count">${item.curtidas || 0}</span>
                                 </div>
@@ -140,15 +144,21 @@
                         </div>`;
                 }).join('');
 
-                new Swiper(".mySwiper", { 
-                    slidesPerView: "auto", 
-                    centeredSlides: true, 
-                    spaceBetween: 20, 
-                    grabCursor: true 
-                });
-            } catch (error) { console.error(error); }
+                new Swiper(".mySwiper", { slidesPerView: "auto", centeredSlides: true, spaceBetween: 20, grabCursor: true });
+            } catch (e) { console.error(e); }
         }
-        carregarPosts();
+
+        async function curtirDestaque(linha, btn) {
+            if(btn.classList.contains('active')) return;
+            btn.classList.add('active'); btn.innerHTML = "❤️";
+            const count = btn.nextElementSibling;
+            count.innerText = parseInt(count.innerText) + 1;
+            fetch(urlDestaques, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ linha: linha }) });
+        }
+
+        // Inicia as duas funções
+        carregarNoticias();
+        carregarDestaques();
     </script>
 </body>
 </html>
