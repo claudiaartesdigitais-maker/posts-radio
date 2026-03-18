@@ -8,37 +8,66 @@
     <style>
         body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #ffffff; margin: 0; padding: 0; }
         
-        .header-faixa { width: 100%; padding: 15px 18px 8px 18px; font-size: 22px; font-weight: 900; color: #001a33; text-transform: uppercase; display: flex; align-items: center; gap: 10px; box-sizing: border-box; }
+        /* Faixas Azul Marinho */
+        .barra-azul { width: 100%; height: 8px; background-color: #001f3f; }
+        .barra-azul-rodape { width: 100%; height: 8px; background-color: #001f3f; margin-top: 10px; }
+
+        .header-faixa { width: 100%; padding: 15px 18px 10px 18px; font-size: 22px; font-weight: 900; color: #001a33; text-transform: uppercase; display: flex; align-items: center; gap: 10px; box-sizing: border-box; }
         .header-faixa::before { content: ''; width: 5px; height: 22px; background: #d32f2f; border-radius: 2px; }
 
-        .swiper { width: 100%; padding: 10px 0 50px 0; }
-        .swiper-slide { width: 90%; max-width: 400px; display: flex; flex-direction: column; background: #fff; }
+        .swiper { width: 100%; padding-bottom: 10px; }
+        .swiper-slide { width: 88%; max-width: 420px; display: flex; flex-direction: column; background: #fff; }
         
-        /* Imagens Grandes e Fundo Branco */
-        .media-container { width: 100%; background: #ffffff; display: flex; align-items: center; justify-content: center; overflow: hidden; }
-        .media-container img, .media-container video { width: 100%; height: auto; max-height: 75vh; object-fit: contain; display: block; border-radius: 15px; }
+        .media-container { width: 100%; position: relative; background: #ffffff; display: flex; align-items: center; justify-content: center; overflow: hidden; border-radius: 12px; }
+        .media-container img, .media-container video { width: 100%; height: auto; max-height: 70vh; object-fit: contain; display: block; border-radius: 12px; }
+
+        /* BOTÃO DE PLAY SOBRE O VÍDEO */
+        .btn-play-video {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background: rgba(211, 47, 47, 0.9);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 5;
+            pointer-events: none; /* Deixa o clique passar para o vídeo */
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        .btn-play-video::after {
+            content: '';
+            width: 0;
+            height: 0;
+            border-top: 12px solid transparent;
+            border-bottom: 12px solid transparent;
+            border-left: 20px solid white;
+            margin-left: 5px;
+        }
 
         .info { padding: 15px 5px; position: relative; }
-        .info h3 { margin: 0; font-size: 14px; font-weight: 800; color: #d32f2f; text-transform: uppercase; }
-        .info p { margin: 5px 0 0; font-size: 18px; font-weight: bold; color: #001a33; padding-right: 50px; line-height: 1.3; }
+        /* Coluna C - Título */
+        .titulo-c { font-size: 19px; font-weight: 800; color: #001a33; line-height: 1.2; margin-bottom: 4px; display: block; text-transform: uppercase; }
+        .info h3 { margin: 0; font-size: 13px; font-weight: 700; color: #d32f2f; text-transform: uppercase; }
+        .info p { margin: 10px 0 0; font-size: 16px; font-weight: 500; color: #444; padding-right: 55px; line-height: 1.4; }
 
-        /* Curtir */
+        /* Like */
         .like-container { position: absolute; right: 5px; top: 15px; display: flex; flex-direction: column; align-items: center; cursor: pointer; }
         .like-btn { font-size: 1.8rem; color: #ccc; }
         .like-btn.active { color: #d32f2f; }
         .like-count { font-size: 0.8rem; color: #666; font-weight: bold; }
-        
-        .swiper-pagination-bullet-active { background: #d32f2f !important; }
     </style>
 </head>
 <body>
 
+    <div class="barra-azul"></div>
     <div class="header-faixa">Destaques da Semana</div>
 
     <div class="swiper mySwiper">
         <div class="swiper-wrapper" id="container-radio"></div>
-        <div class="swiper-pagination"></div>
     </div>
+
+    <div class="barra-azul-rodape"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 
@@ -56,32 +85,51 @@
             } catch (e) {}
         }
 
+        // Função para sumir o botão de play quando o vídeo começar
+        function iniciarVideo(el) {
+            const video = el.querySelector('video');
+            const playBtn = el.querySelector('.btn-play-video');
+            if (video.paused) {
+                video.play();
+                if(playBtn) playBtn.style.display = 'none';
+            } else {
+                video.pause();
+                if(playBtn) playBtn.style.display = 'flex';
+            }
+        }
+
         async function carregarPosts() {
             const container = document.getElementById('container-radio');
             try {
                 const response = await fetch(urlAppScript);
                 const dados = await response.json();
-                
-                // Filtro de 7 dias
-                const limite = 7 * 24 * 60 * 60 * 1000;
                 const agora = new Date().getTime();
+                const limite = 7 * 24 * 60 * 60 * 1000;
 
                 container.innerHTML = dados.reverse().filter(item => {
                     return (agora - new Date(item.data).getTime()) <= limite;
                 }).map(item => {
                     const arquivo = (item.arquivo || item.link || "").trim();
+                    const eVideo = /\.(mp4|mov|webm|ogg)$/i.test(arquivo);
                     
-                    // Identifica se o que veio do formulário é vídeo (mp4, mov, etc)
-                    const eVideo = /\.(mp4|mov|webm|ogg)$/i.test(arquivo) || item.tipo === 'video';
-                    
-                    let midiaHtml = eVideo ? 
-                        `<video src="${arquivo}" controls playsinline></video>` : 
-                        `<img src="${arquivo.includes('drive.google.com') ? `https://drive.google.com/thumbnail?id=${arquivo.match(/[-\w]{25,}/)[0]}&sz=w1000` : arquivo}">`;
+                    let midiaHtml = "";
+                    if (eVideo) {
+                        midiaHtml = `
+                            <div class="media-container" onclick="iniciarVideo(this)">
+                                <div class="btn-play-video"></div>
+                                <video src="${arquivo}" playsinline loop></video>
+                            </div>`;
+                    } else {
+                        const imgUrl = arquivo.includes('drive.google.com') ? 
+                            `https://drive.google.com/thumbnail?id=${arquivo.match(/[-\w]{25,}/)[0]}&sz=w1000` : arquivo;
+                        midiaHtml = `<div class="media-container"><img src="${imgUrl}"></div>`;
+                    }
 
                     return `
                         <div class="swiper-slide">
-                            <div class="media-container">${midiaHtml}</div>
+                            ${midiaHtml}
                             <div class="info">
+                                <span class="titulo-c">${item.titulo || ""}</span>
                                 <h3>${item.apresentador || ""}</h3>
                                 <p>${item.mensagem || ""}</p>
                                 <div class="like-container" onclick="curtir(${item.id || item.linha}, this.querySelector('.like-btn'))">
@@ -92,13 +140,7 @@
                         </div>`;
                 }).join('');
 
-                new Swiper(".mySwiper", { 
-                    slidesPerView: "auto", 
-                    centeredSlides: true, 
-                    spaceBetween: 15, 
-                    grabCursor: true,
-                    pagination: { el: ".swiper-pagination", clickable: true } 
-                });
+                new Swiper(".mySwiper", { slidesPerView: "auto", centeredSlides: true, spaceBetween: 15, grabCursor: true });
             } catch (error) { console.error(error); }
         }
         carregarPosts();
